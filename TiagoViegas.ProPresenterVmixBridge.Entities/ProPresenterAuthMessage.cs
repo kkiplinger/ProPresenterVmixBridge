@@ -7,9 +7,12 @@ using System.Threading.Tasks;
 
 namespace TiagoViegas.ProPresenterVmixBridge.Entities
 {
-    public class ProPresenterMessage
+    public class ProPresenterAuthMessage : ProPresenterMessage
     {
-        [JsonProperty("acn")]
-        public string Action { get; set; }
+        [JsonProperty("err")]
+        public string Error { get; set; }
+
+        [JsonProperty("ath")]
+        public bool Authorized { get; set; }
     }
 }

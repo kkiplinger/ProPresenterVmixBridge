@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
-using WebSocketSharp;
+using TiagoViegas.ProPresenterVmixBridge.Entities;
 
 namespace TiagoViegas.ProPresenterVmixBridge.Data.Interfaces
 {
@@ -11,8 +9,9 @@ namespace TiagoViegas.ProPresenterVmixBridge.Data.Interfaces
     {
         bool Connected { get; }
         bool Connecting { get; }
-        void Connect();
-        void Close();
-        void Listen(EventHandler<MessageEventArgs> onMessage);
+        Task Connect(CancellationToken cancellationToken);
+        Task Close();
+        void Listen(Action<ProPresenterNewSlideMessage> action);
+        void StopListen();
     }
 }

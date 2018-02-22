@@ -58,6 +58,10 @@
       <Project>{F4656D52-FDDA-4026-B25D-01D19D4B861E}</Project>
       <Name>TiagoViegas.ProPresenterVmixBridge.Data.Interfaces</Name>
     </ProjectReference>
+    <ProjectReference Include="..\TiagoViegas.ProPresenterVmixBridge.Entities\TiagoViegas.ProPresenterVmixBridge.Entities.csproj">
+      <Project>{F7E827D3-8277-4F70-9549-237293D05B7F}</Project>
+      <Name>TiagoViegas.ProPresenterVmixBridge.Entities</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

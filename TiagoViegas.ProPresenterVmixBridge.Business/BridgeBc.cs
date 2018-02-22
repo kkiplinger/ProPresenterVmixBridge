@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using TiagoViegas.ProPresenterVmixBridge.Business.Interfaces;
 using TiagoViegas.ProPresenterVmixBridge.Data.Interfaces;
+using TiagoViegas.ProPresenterVmixBridge.Entities;
 
 namespace TiagoViegas.ProPresenterVmixBridge.Business
 {
@@ -14,6 +16,7 @@ namespace TiagoViegas.ProPresenterVmixBridge.Business
         private readonly IProPresenterDataAgent _proPresenterDA;
 
         public bool BridgeOn { get; set; }
+        public bool Connecting { get; set; }
 
         public BridgeBc(IProPresenterDataAgent proPresenterDataAgent, IVmixDataAgent vmixDataAgent)
         {
@@ -23,40 +26,49 @@ namespace TiagoViegas.ProPresenterVmixBridge.Business
         }
 
 
-        public void Bridge()
+        public async Task Bridge()
         {
-            var connectionRetries = 0;
-            while (!_proPresenterDA.Connected)
+            if (BridgeOn)
             {
-                if (!_proPresenterDA.Connecting)
-                {
-                    _proPresenterDA.Connect();
-                    connectionRetries++;
-                }
-                if(connectionRetries >= 10)
-                {
-                    break;
-                }
+                return;
             }
+
+            Connecting = true;
+
+            var cts = new CancellationTokenSource();
+
+            await _proPresenterDA.Connect(cts.Token);
 
             if (_proPresenterDA.Connected)
             {
-                _proPresenterDA.Listen((sender, e) =>
+                Console.WriteLine("Connected");
+                _proPresenterDA.Listen((x) =>
                 {
-                    var text = e.Data;
-                    Console.WriteLine(text);
-
-                    _vmixDA.SendText(text);
+                    var text = x.Array.FirstOrDefault(y => y.Action == ProPresenterActions.CurrentSlide).Text;
+                    Console.WriteLine(text.Trim('\n'));
+                    _vmixDA.SendText(text.Trim('\n'));
                 });
 
                 BridgeOn = true;
             }
-            
+            else
+            {
+                cts.Cancel();
+                Console.WriteLine("Could not connect");
+                BridgeOn = false;
+            }
+            Connecting = false;
         }
 
-        public void Close()
+        public async Task Close()
         {
-            _proPresenterDA.Close();
+            if (!BridgeOn)
+            {
+                return;
+            }
+
+            _proPresenterDA.StopListen();
+            await _proPresenterDA.Close();
             BridgeOn = false;
         }
     }

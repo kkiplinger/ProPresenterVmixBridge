@@ -1,9 +1,12 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Linq;
+using System.Net.WebSockets;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using TiagoViegas.ProPresenterVmixBridge.Data.Interfaces;
 using TiagoViegas.ProPresenterVmixBridge.Entities;
-using WebSocketSharp;
 
 namespace TiagoViegas.ProPresenterVmixBridge.DataAgents
 {
@@ -12,9 +15,12 @@ namespace TiagoViegas.ProPresenterVmixBridge.DataAgents
         private readonly string _ip;
         private readonly string _port;
         private readonly string _password;
-        private WebSocket _socket;
+        private ClientWebSocket _socket;
         public bool Connected { get; set; }
         public bool Connecting { get; set; }
+        private CancellationTokenSource CancellationTokenSource { get; set; }
+
+        private bool StopListening { get; set; }
 
         public ProPresenterDataAgent(IConfigManager configManager)
         {
@@ -22,11 +28,34 @@ namespace TiagoViegas.ProPresenterVmixBridge.DataAgents
             _port = configManager.GetConfig(ConfigKeys.ProPresenterPort);
             _password = configManager.GetConfig(ConfigKeys.ProPresenterPassword);
             Connected = false;
+            Connecting = false;
+            StopListening = false;
         }
 
-        public void Connect()
+        public async Task Connect(CancellationToken cancellationToken)
         {
-            _socket = new WebSocket($"ws://{_ip}:{_port}/stagedisplay");
+            if (Connecting)
+            {
+                return;
+            }
+
+            _socket = new ClientWebSocket();
+
+            _socket.Options.KeepAliveInterval = new TimeSpan(24,0,0);
+
+            Connecting = true;
+
+            try
+            {
+                await _socket.ConnectAsync(new Uri($"ws://{_ip}:{_port}/stagedisplay"), cancellationToken);
+            }
+            catch (Exception e)
+            {
+                Connected = false;
+                Connecting = false;
+                return;
+            }
+            
 
             var authCommand = JsonConvert.SerializeObject(new
             {
@@ -35,33 +64,98 @@ namespace TiagoViegas.ProPresenterVmixBridge.DataAgents
                 acn = "ath"
             });
 
-            _socket.OnMessage += (sender, e) => {
-                Connected = true;
-                Connecting = false;
-            };
-
-            _socket.OnError += (sender, e) =>
+            var receiveTask = new Task(async () =>
             {
-                Console.WriteLine("Error connecting");
-                Connected = false;
-                _socket.Close();
+                var rcvArray = new byte[128];
+                var rcvBuffer = new ArraySegment<byte>(rcvArray);
+
+                while (true)
+                {
+                    if(_socket.State == WebSocketState.Open)
+                    {
+                        var result = await _socket.ReceiveAsync(rcvBuffer, cancellationToken);
+
+                        var resultArray = rcvBuffer.Skip(rcvBuffer.Offset).Take(result.Count).ToArray();
+
+                        var message = Encoding.UTF8.GetString(resultArray);
+
+                        var messageObject = JsonConvert.DeserializeObject<ProPresenterAuthMessage>(message);
+
+                        if (messageObject != null && messageObject.Action == ProPresenterActions.Auth)
+                        {
+                            if (messageObject.Authorized)
+                            {
+                                Connected = true;
+                            }
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        Connected = false;
+                        break;
+                    }
+                }
+                
                 Connecting = false;
-            };
+            }, cancellationToken);
 
-            _socket.Connect();
-            Connecting = true;
-            _socket.Send(authCommand);
+
+            receiveTask.Start();
+
+            await _socket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(authCommand)), WebSocketMessageType.Text, true, cancellationToken);
+
+            while (Connecting);
         }
 
-        public void Listen(EventHandler<MessageEventArgs> onMessage)
+        public void Listen(Action<ProPresenterNewSlideMessage> action)
         {
-            _socket.OnMessage += onMessage;
+            CancellationTokenSource = new CancellationTokenSource();
+
+            Task.Factory.StartNew(async () =>
+            {
+                var rcvArray = new byte[2048];
+                var rcvBuffer = new ArraySegment<byte>(rcvArray);
+
+                while (!StopListening)
+                {
+                    var result = await _socket.ReceiveAsync(rcvBuffer, CancellationTokenSource.Token);
+
+                    var resultArray = rcvBuffer.Skip(rcvBuffer.Offset).Take(result.Count).ToArray();
+
+                    var message = Encoding.UTF8.GetString(resultArray);
+
+                    var messageObject = JsonConvert.DeserializeObject<ProPresenterMessage>(message);
+
+                    if (messageObject != null && messageObject.Action == ProPresenterActions.NewSlide)
+                    {
+                        var newSlide = JsonConvert.DeserializeObject<ProPresenterNewSlideMessage>(message);
+                        action(newSlide);
+                    }
+                }
+
+                StopListening = false;
+                
+            }, CancellationTokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
 
-        public void Close()
+        public void StopListen()
         {
-            _socket.Close();
+            StopListening = true;
+        }
+
+        public async Task Close()
+        {
+            if (Connecting)
+            {
+                return;
+            }
+
+            CancellationTokenSource = new CancellationTokenSource();
+            await _socket.CloseAsync(WebSocketCloseStatus.NormalClosure, null, CancellationTokenSource.Token);
+            _socket.Dispose();
             Connected = false;
+            Connecting = false;
         }
     }
 }

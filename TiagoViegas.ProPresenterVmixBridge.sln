@@ -29,6 +29,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "5 - Tests", "5 - Tests", "{
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TiagoViegas.ProPresenterVmixBridge.Tests", "TiagoViegas.ProPresenterVmixBridge.Tests\TiagoViegas.ProPresenterVmixBridge.Tests.csproj", "{9E79F0ED-C62A-4809-8AA2-CFB1A8CA7ABF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TiagoViegas.ProPresenterVmixBridge.Console", "TiagoViegas.ProPresenterVmixBridge.Console\TiagoViegas.ProPresenterVmixBridge.Console.csproj", "{DDD2C3EA-7D27-4FF1-B95F-319A049A211C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -67,6 +69,10 @@ Global
 		{9E79F0ED-C62A-4809-8AA2-CFB1A8CA7ABF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9E79F0ED-C62A-4809-8AA2-CFB1A8CA7ABF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9E79F0ED-C62A-4809-8AA2-CFB1A8CA7ABF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DDD2C3EA-7D27-4FF1-B95F-319A049A211C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DDD2C3EA-7D27-4FF1-B95F-319A049A211C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DDD2C3EA-7D27-4FF1-B95F-319A049A211C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DDD2C3EA-7D27-4FF1-B95F-319A049A211C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -80,6 +86,7 @@ Global
 		{BD2A9959-0189-4202-82ED-A70125D83BE6} = {B1531333-6827-4D2C-B0FE-2DAF5D740C93}
 		{F4656D52-FDDA-4026-B25D-01D19D4B861E} = {B1531333-6827-4D2C-B0FE-2DAF5D740C93}
 		{9E79F0ED-C62A-4809-8AA2-CFB1A8CA7ABF} = {FB6A0EA5-A98A-4AEA-A09B-20E1432DF626}
+		{DDD2C3EA-7D27-4FF1-B95F-319A049A211C} = {DEF03C29-1455-491E-A472-1EBD5688B1B2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {531C4932-62C3-4853-9915-144ADC835C1A}

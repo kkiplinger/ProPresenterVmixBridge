@@ -1,0 +1,26 @@
+[
+  {
+    "key": "ProPresenterIp",
+    "value": "192.168.1.66"
+  },
+  {
+    "key": "ProPresenterPort",
+    "value": "52478"
+  },
+  {
+    "key": "ProPresenterPassword",
+    "value": "123"
+  },
+  {
+    "key": "VmixIp",
+    "value": "127.0.0.1"
+  },
+  {
+    "key": "VmixPort",
+    "value": "8088"
+  },
+  {
+    "key": "VmixInputNumber",
+    "value": "1"
+  }
+]
