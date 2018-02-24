@@ -14,6 +14,7 @@ namespace TiagoViegas.ProPresenterVmixBridge.Configuration
 
         public ConfigManager()
         {
+            Configs = new List<Config>();
             LoadConfig();
         }
 
@@ -34,11 +35,19 @@ namespace TiagoViegas.ProPresenterVmixBridge.Configuration
 
         private void LoadConfig()
         {
-            var path = System.Environment.CurrentDirectory;
+            var path = System.AppDomain.CurrentDomain.BaseDirectory;
 
-            var configText = File.ReadAllText(Path.Combine(path, ConfigFileName));
+            var configFile = Path.Combine(path, ConfigFileName);
 
-            Configs = JsonConvert.DeserializeObject<IEnumerable<Config>>(configText);
+            if (!File.Exists(configFile))
+            {
+                File.Create(configFile);
+            }
+            else
+            {
+                var configText = File.ReadAllText(configFile);
+                Configs = JsonConvert.DeserializeObject<IEnumerable<Config>>(configText);
+            }
         }
 
         private void SaveConfig()

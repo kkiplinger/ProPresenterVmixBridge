@@ -1,28 +1,34 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
-using System.Linq;
 using System.ServiceProcess;
-using System.Text;
-using System.Threading.Tasks;
+using TiagoViegas.ProPresenterVmixBridge.Business.Interfaces;
+using TiagoViegas.ProPresenterVmixBridge.WindowsService.IoC;
 
 namespace TiagoViegas.ProPresenterVmixBridge.WindowsService
 {
     public partial class ProPresenterVmixBridgeService : ServiceBase
     {
+        private readonly IBridgeBc _bridgeBc;
+
         public ProPresenterVmixBridgeService()
         {
             InitializeComponent();
+
+            var container = IoCManager.CreateContainer();
+            _bridgeBc = container.GetInstance<IBridgeBc>();
+           
+            
         }
 
         protected override void OnStart(string[] args)
         {
+            _bridgeBc.Bridge();
+             
         }
 
         protected override void OnStop()
         {
+            _bridgeBc.Close();
         }
     }
 }

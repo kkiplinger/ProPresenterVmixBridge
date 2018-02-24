@@ -17,6 +17,7 @@ namespace TiagoViegas.ProPresenterVmixBridge.Business
 
         public bool BridgeOn { get; set; }
         public bool Connecting { get; set; }
+        private Action OnConnectionAction { get; set; }
 
         public BridgeBc(IProPresenterDataAgent proPresenterDataAgent, IVmixDataAgent vmixDataAgent)
         {
@@ -37,11 +38,22 @@ namespace TiagoViegas.ProPresenterVmixBridge.Business
 
             var cts = new CancellationTokenSource();
 
-            await _proPresenterDA.Connect(cts.Token);
+            try
+            {
+                await _proPresenterDA.Connect(cts.Token);
+            }catch (Exception e)
+            {
+                Connecting = false;
+                return;
+            }
+            
 
             if (_proPresenterDA.Connected)
             {
                 Console.WriteLine("Connected");
+
+                OnConnectionAction?.Invoke();
+
                 _proPresenterDA.Listen((x) =>
                 {
                     var text = x.Array.FirstOrDefault(y => y.Action == ProPresenterActions.CurrentSlide).Text;
@@ -70,6 +82,11 @@ namespace TiagoViegas.ProPresenterVmixBridge.Business
             _proPresenterDA.StopListen();
             await _proPresenterDA.Close();
             BridgeOn = false;
+        }
+
+        public void OnConnection(Action action)
+        {
+            OnConnectionAction = action;
         }
     }
 }

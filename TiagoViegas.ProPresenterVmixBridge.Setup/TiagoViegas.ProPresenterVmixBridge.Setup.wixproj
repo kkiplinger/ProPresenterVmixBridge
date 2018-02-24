@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" InitialTargets="EnsureWixToolsetInstalled" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>3.10</ProductVersion>
+    <ProjectGuid>5d9769af-a9b9-4dc9-a0f3-c26cbc796745</ProjectGuid>
+    <SchemaVersion>2.0</SchemaVersion>
+    <OutputName>ProPresenterVmixBridgeSetup</OutputName>
+    <OutputType>Package</OutputType>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
+    <DefineConstants>Debug</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Product.wxs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TiagoViegas.ProPresenterVmixBridge.Business\TiagoViegas.ProPresenterVmixBridge.Business.csproj">
+      <Name>TiagoViegas.ProPresenterVmixBridge.Business</Name>
+      <Project>{aa0d6628-9828-4604-bfd7-d4a4340b826b}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\TiagoViegas.ProPresenterVmixBridge.ConfigManager\TiagoViegas.ProPresenterVmixBridge.ConfigManager.csproj">
+      <Name>TiagoViegas.ProPresenterVmixBridge.ConfigManager</Name>
+      <Project>{7ae08ce0-9aa4-42ba-b307-c4c56b129a56}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\TiagoViegas.ProPresenterVmixBridge.Data.Interfaces\TiagoViegas.ProPresenterVmixBridge.Data.Interfaces.csproj">
+      <Name>TiagoViegas.ProPresenterVmixBridge.Data.Interfaces</Name>
+      <Project>{f4656d52-fdda-4026-b25d-01d19d4b861e}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\TiagoViegas.ProPresenterVmixBridge.Data.IoC\TiagoViegas.ProPresenterVmixBridge.Data.IoC.csproj">
+      <Name>TiagoViegas.ProPresenterVmixBridge.Data.IoC</Name>
+      <Project>{377f1163-6522-4f36-8643-e1996940128e}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\TiagoViegas.ProPresenterVmixBridge.DataAgents\TiagoViegas.ProPresenterVmixBridge.DataAgents.csproj">
+      <Name>TiagoViegas.ProPresenterVmixBridge.DataAgents</Name>
+      <Project>{bd2a9959-0189-4202-82ed-a70125d83be6}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\TiagoViegas.ProPresenterVmixBridge.Entities\TiagoViegas.ProPresenterVmixBridge.Entities.csproj">
+      <Name>TiagoViegas.ProPresenterVmixBridge.Entities</Name>
+      <Project>{f7e827d3-8277-4f70-9549-237293d05b7f}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\TiagoViegas.ProPresenterVmixBridge.WindowsService\TiagoViegas.ProPresenterVmixBridge.WindowsService.csproj">
+      <Name>TiagoViegas.ProPresenterVmixBridge.WindowsService</Name>
+      <Project>{81fb264c-5e00-4b49-8b55-dd16f224dadc}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="config.json" />
+  </ItemGroup>
+  <Import Project="$(WixTargetsPath)" Condition=" '$(WixTargetsPath)' != '' " />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets" Condition=" '$(WixTargetsPath)' == '' AND Exists('$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets') " />
+  <Target Name="EnsureWixToolsetInstalled" Condition=" '$(WixTargetsImported)' != 'true' ">
+    <Error Text="The WiX Toolset v3.11 (or newer) build tools must be installed to build this project. To download the WiX Toolset, see http://wixtoolset.org/releases/" />
+  </Target>
+  <!--
+	To modify your build process, add your task inside one of the targets below and uncomment it.
+	Other similar extension points exist, see Wix.targets.
+	<Target Name="BeforeBuild">
+	</Target>
+	<Target Name="AfterBuild">
+	</Target>
+	-->
+</Project>

@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Threading.Tasks;
 
 namespace TiagoViegas.ProPresenterVmixBridge.Business.Interfaces
@@ -7,6 +8,7 @@ namespace TiagoViegas.ProPresenterVmixBridge.Business.Interfaces
     {
         bool BridgeOn { get; }
         bool Connecting { get; }
+        void OnConnection(Action action);
         Task Bridge();
         Task Close();
     }
