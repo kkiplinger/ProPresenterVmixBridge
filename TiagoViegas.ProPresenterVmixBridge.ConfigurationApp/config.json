@@ -1,19 +1,19 @@
 [
   {
     "key": "ProPresenterIp",
-    "value": "192.168.1.193"
+    "value": "192.168.1.186"
   },
   {
     "key": "ProPresenterPort",
-    "value": "49168"
+    "value": "1234"
   },
   {
     "key": "ProPresenterPassword",
-    "value": "jesus"
+    "value": "123"
   },
   {
     "key": "VmixIp",
-    "value": "192.168.1.100"
+    "value": "127.0.0.1"
   },
   {
     "key": "VmixPort",
@@ -21,6 +21,6 @@
   },
   {
     "key": "VmixInputNumber",
-    "value": "9"
+    "value": "1"
   }
 ]

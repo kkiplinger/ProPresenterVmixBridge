@@ -36,5 +36,15 @@ namespace TiagoViegas.ProPresenterVmixBridge.Tests
             }
             throw new InvalidOperationException();
         }
+
+        public void LoadConfig()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SaveConfig()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

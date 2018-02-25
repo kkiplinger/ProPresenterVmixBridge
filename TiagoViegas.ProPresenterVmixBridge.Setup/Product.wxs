@@ -1,28 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Product Id="*" Name="ProPresenter Vmix Bridge" Language="1033" Version="1.0.0.0" Manufacturer="Tiago Viegas" UpgradeCode="ea2e59a0-90b9-47c7-a2e1-cd856c241336">
-    <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+    <Package InstallerVersion="300" Compressed="yes" InstallScope="perMachine"/>
 
     <MajorUpgrade DowngradeErrorMessage="A newer version of ProPresenter Vmix Bridge is already installed." />
-    <MediaTemplate />
+    <Media Id="1" Cabinet="ProPresenterVmixBridge.cab" EmbedCab="yes"/>
 
-    <Feature Id="ProductFeature" Title="ProPresenterVmixBridge" Level="1">
-      <ComponentGroupRef Id="ProductComponents" />
-    </Feature>
-  </Product>
-
-  <Fragment>
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFilesFolder">
-        <Directory Id="ROOTDIRECTORY" Name="Tiago Viegas">
-          <Directory Id="INSTALLFOLDER" Name="ProPresenter Vmix Bridge" />
-        </Directory>
+        <Directory Id="ROOTDIRECTORY" Name="ProPresenter Vmix Bridge"/>
       </Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="ProPresenter Vmix Bridge"></Directory>
+      </Directory>
+      <Directory Id="DesktopFolder"/>
     </Directory>
-  </Fragment>
 
-  <Fragment>
-    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+    <DirectoryRef Id="ROOTDIRECTORY">
       <Component Id="config.json" Guid="{d622234a-6ba6-4ee9-ac12-302ea11fba9f}">
         <File Id="config.json" Source="config.json" KeyPath="yes"></File>
       </Component>
@@ -35,7 +29,7 @@
       <Component Id="$(var.TiagoViegas.ProPresenterVmixBridge.Data.Interfaces.TargetFileName)">
         <File Id="$(var.TiagoViegas.ProPresenterVmixBridge.Data.Interfaces.TargetFileName)" Source="$(var.TiagoViegas.ProPresenterVmixBridge.Data.Interfaces.TargetPath)" KeyPath="yes"></File>
       </Component>
-        <Component Id="$(var.TiagoViegas.ProPresenterVmixBridge.Data.IoC.TargetFileName)">
+      <Component Id="$(var.TiagoViegas.ProPresenterVmixBridge.Data.IoC.TargetFileName)">
         <File Id="$(var.TiagoViegas.ProPresenterVmixBridge.Data.IoC.TargetFileName)" Source="$(var.TiagoViegas.ProPresenterVmixBridge.Data.IoC.TargetPath)" KeyPath="yes"></File>
       </Component>
       <Component Id="$(var.TiagoViegas.ProPresenterVmixBridge.DataAgents.TargetFileName)">
@@ -56,8 +50,10 @@
       <Component Id="SimpleInjector.xml" Guid="{9aeca65b-1871-4bc2-a09b-390de14c0ec7}">
         <File Id="SimpleInjector.xml" Source="$(var.TiagoViegas.ProPresenterVmixBridge.WindowsService.TargetDir)SimpleInjector.xml" KeyPath="yes"></File>
       </Component>
-      
-        
+      <Component Id="$(var.TiagoViegas.ProPresenterVmixBridge.ConfigurationApp.TargetFileName)" >
+        <File Id="$(var.TiagoViegas.ProPresenterVmixBridge.ConfigurationApp.TargetFileName)" Source="$(var.TiagoViegas.ProPresenterVmixBridge.ConfigurationApp.TargetPath)" KeyPath="yes" />
+      </Component>
+
       <Component Id="$(var.TiagoViegas.ProPresenterVmixBridge.WindowsService.TargetFileName)" >
         <File Id="$(var.TiagoViegas.ProPresenterVmixBridge.WindowsService.TargetFileName)" Source="$(var.TiagoViegas.ProPresenterVmixBridge.WindowsService.TargetPath)" KeyPath="yes" />
         <!-- Remove all files from the INSTALLFOLDER on uninstall -->
@@ -73,6 +69,48 @@
         <!-- Tell WiX to start the Service -->
         <ServiceControl Id="StartService" Start="install" Stop="both" Remove="uninstall" Name="ProPresenterVmixBridgeService" Wait="yes" />
       </Component>
-    </ComponentGroup>
-  </Fragment>
+    </DirectoryRef>
+
+    <DirectoryRef Id="DesktopFolder">
+      <Component Id="ApplicationShortcutDesktop" Guid="*">
+        <Shortcut Id="ApplicationDesktopShortcut"
+                  Name="ProPresenter Vmix Bridge Configuration"
+                  Description="Configuration for ProPresenter Vmix BridgeService"
+                  Target="[ROOTDIRECTORY]$(var.TiagoViegas.ProPresenterVmixBridge.ConfigurationApp.TargetFileName)"
+                  WorkingDirectory="ROOTDIRECTORY"/>
+        <RemoveFolder Id="CleanUpDesktopShortCut" Directory="DesktopFolder" On="uninstall"/>
+        <RegistryValue Root="HKCU" Key="Software\Microsoft\ProPresenter Vmix Bridge" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+    
+    <DirectoryRef Id="ApplicationProgramsFolder">
+      <Component Id="ApplicationShortcut" Guid="{99b79ade-332a-45da-a690-761399a89845}">
+        <Shortcut Id="ApplicationStartMenuShortcut"
+                  Name="ProPresenter Vmix Bridge Configuration"
+                  Description="Configuration for ProPresenter Vmix BridgeService"
+                  Target="[ROOTDIRECTORY]$(var.TiagoViegas.ProPresenterVmixBridge.ConfigurationApp.TargetFileName)"
+                  WorkingDirectory="ROOTDIRECTORY"/>
+        <RemoveFolder Id="CleanUpShortCut" Directory="ApplicationProgramsFolder" On="uninstall"/>
+        <RegistryValue Root="HKCU" Key="Software\Microsoft\ProPresenter Vmix Bridge" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+
+    <Feature Id="ProductFeature" Title="ProPresenterVmixBridge" Level="1">
+      <ComponentRef Id="config.json" />
+      <ComponentRef Id="$(var.TiagoViegas.ProPresenterVmixBridge.WindowsService.TargetFileName)"/>
+      <ComponentRef Id="$(var.TiagoViegas.ProPresenterVmixBridge.ConfigurationApp.TargetFileName)"/>
+      <ComponentRef Id="$(var.TiagoViegas.ProPresenterVmixBridge.Business.TargetFileName)"/>
+      <ComponentRef Id="$(var.TiagoViegas.ProPresenterVmixBridge.ConfigManager.TargetFileName)"/>
+      <ComponentRef Id="$(var.TiagoViegas.ProPresenterVmixBridge.Data.Interfaces.TargetFileName)"/>
+      <ComponentRef Id="$(var.TiagoViegas.ProPresenterVmixBridge.Data.IoC.TargetFileName)"/>
+      <ComponentRef Id="$(var.TiagoViegas.ProPresenterVmixBridge.DataAgents.TargetFileName)"/>
+      <ComponentRef Id="$(var.TiagoViegas.ProPresenterVmixBridge.Entities.TargetFileName)"/>
+      <ComponentRef Id="Newtonsoft.Json.dll"/>
+      <ComponentRef Id="Newtonsoft.Json.xml"/>
+      <ComponentRef Id="SimpleInjector.dll"/>
+      <ComponentRef Id="SimpleInjector.xml"/>
+      <ComponentRef Id="ApplicationShortcut"/>
+      <ComponentRef Id="ApplicationShortcutDesktop"/>
+    </Feature>
+  </Product>
 </Wix>

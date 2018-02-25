@@ -10,5 +10,7 @@ namespace TiagoViegas.ProPresenterVmixBridge.Data.Interfaces
     {
         string GetConfig(string key);
         void EditConfig(string key, string value);
+        void LoadConfig();
+        void SaveConfig();
     }
 }

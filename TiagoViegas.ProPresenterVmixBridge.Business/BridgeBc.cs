@@ -41,7 +41,7 @@ namespace TiagoViegas.ProPresenterVmixBridge.Business
             try
             {
                 await _proPresenterDA.Connect(cts.Token);
-            }catch (Exception e)
+            }catch (Exception)
             {
                 Connecting = false;
                 return;
@@ -56,9 +56,12 @@ namespace TiagoViegas.ProPresenterVmixBridge.Business
 
                 _proPresenterDA.Listen((x) =>
                 {
-                    var text = x.Array.FirstOrDefault(y => y.Action == ProPresenterActions.CurrentSlide).Text;
-                    Console.WriteLine(text.Trim('\n'));
-                    _vmixDA.SendText(text.Trim('\n'));
+                    var text = new StringBuilder(x.Array.FirstOrDefault(y => y.Action == ProPresenterActions.CurrentSlide).Text.Trim('\n'));
+
+                    text.Replace('\n', ' ');
+
+                    Console.WriteLine(text.ToString());
+                    _vmixDA.SendText(text.ToString());
                 });
 
                 BridgeOn = true;

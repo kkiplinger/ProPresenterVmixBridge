@@ -1,0 +1,9 @@
+﻿<Application x:Class="TiagoViegas.ProPresenterVmixBridge.ConfigurationApp.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:TiagoViegas.ProPresenterVmixBridge.ConfigurationApp"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+         
+    </Application.Resources>
+</Application>

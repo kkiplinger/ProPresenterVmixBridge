@@ -11,10 +11,12 @@ namespace TiagoViegas.ProPresenterVmixBridge.Configuration
     {
         private const string ConfigFileName = "config.json";
         private IEnumerable<Config> Configs;
+        private readonly string _currentPath;
 
         public ConfigManager()
         {
             Configs = new List<Config>();
+            _currentPath = System.AppDomain.CurrentDomain.BaseDirectory;
             LoadConfig();
         }
 
@@ -24,8 +26,7 @@ namespace TiagoViegas.ProPresenterVmixBridge.Configuration
 
             config.Value = value;
 
-            SaveConfig();
-            LoadConfig();
+            
         }
 
         public string GetConfig(string key)
@@ -33,11 +34,9 @@ namespace TiagoViegas.ProPresenterVmixBridge.Configuration
             return Configs.First(x => x.Key == key).Value;
         }
 
-        private void LoadConfig()
+        public void LoadConfig()
         {
-            var path = System.AppDomain.CurrentDomain.BaseDirectory;
-
-            var configFile = Path.Combine(path, ConfigFileName);
+            var configFile = Path.Combine(_currentPath, ConfigFileName);
 
             if (!File.Exists(configFile))
             {
@@ -50,13 +49,11 @@ namespace TiagoViegas.ProPresenterVmixBridge.Configuration
             }
         }
 
-        private void SaveConfig()
+        public void SaveConfig()
         {
             var text = JsonConvert.SerializeObject(Configs);
 
-            var path = System.Environment.CurrentDirectory;
-
-            File.WriteAllText(Path.Combine(path, ConfigFileName), text);
+            File.WriteAllText(Path.Combine(_currentPath, ConfigFileName), text);
         }
     }
 }

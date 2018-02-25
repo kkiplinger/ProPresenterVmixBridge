@@ -9,5 +9,6 @@ namespace TiagoViegas.ProPresenterVmixBridge.Data.Interfaces
     public interface IVmixDataAgent
     {
         Task SendText(string text);
+        Task<bool> CheckConfig();
     }
 }

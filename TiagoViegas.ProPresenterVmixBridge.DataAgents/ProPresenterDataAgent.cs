@@ -49,7 +49,7 @@ namespace TiagoViegas.ProPresenterVmixBridge.DataAgents
             {
                 await _socket.ConnectAsync(new Uri($"ws://{_ip}:{_port}/stagedisplay"), cancellationToken);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 Connected = false;
                 Connecting = false;
