@@ -1,59 +1,87 @@
-﻿
-using System.IO;
+﻿using System;
 using System.Collections.Generic;
-using TiagoViegas.ProPresenterVmixBridge.Data.Interfaces;
-using Newtonsoft.Json;
+using System.IO;
 using System.Linq;
+using Newtonsoft.Json;
+using TiagoViegas.ProPresenterVmixBridge.Configuration;
+using TiagoViegas.ProPresenterVmixBridge.Data.Interfaces;
+using TiagoViegas.ProPresenterVmixBridge.Logging;
 
-namespace TiagoViegas.ProPresenterVmixBridge.Configuration
+namespace TiagoViegas.ProPresenterVmixBridge.ConfigManager
 {
     public class ConfigManager : IConfigManager
     {
         private const string ConfigFileName = "config.json";
-        private IEnumerable<Config> Configs;
+        private ICollection<Config> _configs;
         private readonly string _currentPath;
+        private readonly object _lock = new object();
+        private readonly ILogger _logger;
 
-        public ConfigManager()
+        public ConfigManager(ILogger logger)
         {
-            Configs = new List<Config>();
-            _currentPath = System.AppDomain.CurrentDomain.BaseDirectory;
+            _logger = logger;
+            _configs = new List<Config>();
+            _currentPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "ProPresenter Vmix Bridge");
             LoadConfig();
         }
 
         public void EditConfig(string key, string value)
         {
-            var config = Configs.First(x => x.Key == key);
+            var config = _configs.FirstOrDefault(x => x.Key == key);
+
+            if (config == null)
+            {
+                config = new Config
+                {
+                    Key = key
+                };
+                _configs.Add(config);
+            }
 
             config.Value = value;
-
-            
         }
 
         public string GetConfig(string key)
         {
-            return Configs.First(x => x.Key == key).Value;
+            return _configs.First(x => x.Key == key).Value;
         }
 
         public void LoadConfig()
         {
-            var configFile = Path.Combine(_currentPath, ConfigFileName);
+                if (!Directory.Exists(_currentPath))
+                {
+                    Directory.CreateDirectory(_currentPath);
+                }
 
-            if (!File.Exists(configFile))
-            {
-                File.Create(configFile);
-            }
-            else
-            {
+                var configFile = Path.Combine(_currentPath, ConfigFileName);
+
+                if (!File.Exists(configFile))
+                {
+                    _logger.LogInfoFormat("Creating config file: {0}", configFile);
+                    File.Create(configFile);
+                }
+               
+                _logger.LogInfoFormat("Loading config file: {0}", configFile);
+
+                
                 var configText = File.ReadAllText(configFile);
-                Configs = JsonConvert.DeserializeObject<IEnumerable<Config>>(configText);
-            }
+                _configs = JsonConvert.DeserializeObject<ICollection<Config>>(configText);
+                
+
+                if (_configs == null)
+                {
+                    _configs = new List<Config>();
+                    SaveConfig();
+                }
         }
 
         public void SaveConfig()
         {
-            var text = JsonConvert.SerializeObject(Configs);
+            
+                var text = JsonConvert.SerializeObject(_configs);
 
-            File.WriteAllText(Path.Combine(_currentPath, ConfigFileName), text);
+                File.WriteAllText(Path.Combine(_currentPath, ConfigFileName), text);
+            
         }
     }
 }

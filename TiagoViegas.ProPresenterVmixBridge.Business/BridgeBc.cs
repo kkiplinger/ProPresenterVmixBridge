@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -7,22 +6,25 @@ using System.Threading.Tasks;
 using TiagoViegas.ProPresenterVmixBridge.Business.Interfaces;
 using TiagoViegas.ProPresenterVmixBridge.Data.Interfaces;
 using TiagoViegas.ProPresenterVmixBridge.Entities;
+using TiagoViegas.ProPresenterVmixBridge.Logging;
 
 namespace TiagoViegas.ProPresenterVmixBridge.Business
 {
     public class BridgeBc : IBridgeBc
     {
-        private readonly IVmixDataAgent _vmixDA;
-        private readonly IProPresenterDataAgent _proPresenterDA;
+        private readonly IVmixDataAgent _vmixDa;
+        private readonly IProPresenterDataAgent _proPresenterDa;
+        private readonly ILogger _logger;
 
         public bool BridgeOn { get; set; }
         public bool Connecting { get; set; }
         private Action OnConnectionAction { get; set; }
 
-        public BridgeBc(IProPresenterDataAgent proPresenterDataAgent, IVmixDataAgent vmixDataAgent)
+        public BridgeBc(IProPresenterDataAgent proPresenterDataAgent, IVmixDataAgent vmixDataAgent, ILogger logger)
         {
-            _vmixDA = vmixDataAgent;
-            _proPresenterDA = proPresenterDataAgent;
+            _vmixDa = vmixDataAgent;
+            _logger = logger;
+            _proPresenterDa = proPresenterDataAgent;
             BridgeOn = false;
         }
 
@@ -40,28 +42,31 @@ namespace TiagoViegas.ProPresenterVmixBridge.Business
 
             try
             {
-                await _proPresenterDA.Connect(cts.Token);
-            }catch (Exception)
+                _logger.LogInfo("Connecting");
+                await _proPresenterDa.Connect(cts.Token);
+            }catch (Exception e)
             {
+                _logger.LogError("Error while connecting", e);
                 Connecting = false;
                 return;
             }
             
 
-            if (_proPresenterDA.Connected)
+            if (_proPresenterDa.Connected)
             {
-                Console.WriteLine("Connected");
+                _logger.LogInfo("Connected");
 
                 OnConnectionAction?.Invoke();
 
-                _proPresenterDA.Listen((x) =>
+                _proPresenterDa.Listen((x) =>
                 {
-                    var text = new StringBuilder(x.Array.FirstOrDefault(y => y.Action == ProPresenterActions.CurrentSlide).Text.Trim('\n'));
+                    var text = new StringBuilder(x.Array.FirstOrDefault(y => y.Action == ProPresenterActions.CurrentSlide)?.Text.Trim('\n'));
 
                     text.Replace('\n', ' ');
 
-                    Console.WriteLine(text.ToString());
-                    _vmixDA.SendText(text.ToString());
+                    _logger.LogInfoFormat("Received {0}", text);
+
+                    _vmixDa.SendText(text.ToString());
                 });
 
                 BridgeOn = true;
@@ -69,7 +74,7 @@ namespace TiagoViegas.ProPresenterVmixBridge.Business
             else
             {
                 cts.Cancel();
-                Console.WriteLine("Could not connect");
+                _logger.LogInfo("Could not connect");
                 BridgeOn = false;
             }
             Connecting = false;
@@ -82,8 +87,8 @@ namespace TiagoViegas.ProPresenterVmixBridge.Business
                 return;
             }
 
-            _proPresenterDA.StopListen();
-            await _proPresenterDA.Close();
+            _proPresenterDa.StopListen();
+            await _proPresenterDa.Close();
             BridgeOn = false;
         }
 

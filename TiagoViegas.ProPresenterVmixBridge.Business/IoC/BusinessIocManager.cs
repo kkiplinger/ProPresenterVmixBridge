@@ -10,7 +10,7 @@ namespace TiagoViegas.ProPresenterVmixBridge.Business.IoC
 {
     public class BusinessIocManager
     {
-        public static void BootstrapBusiness(Container container)
+        public static void RegisterDependenciesInto(Container container)
         {
             container.Register<IBridgeBc, BridgeBc>(Lifestyle.Transient);
         }

@@ -34,8 +34,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="SimpleInjector, Version=4.0.12.0, Culture=neutral, PublicKeyToken=984cb50dea722e99, processorArchitecture=MSIL">
-      <HintPath>..\packages\SimpleInjector.4.0.12\lib\net45\SimpleInjector.dll</HintPath>
+    <Reference Include="SimpleInjector, Version=4.1.1.0, Culture=neutral, PublicKeyToken=984cb50dea722e99, processorArchitecture=MSIL">
+      <HintPath>..\packages\SimpleInjector.4.1.1\lib\net45\SimpleInjector.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -121,6 +121,10 @@
     <ProjectReference Include="..\TiagoViegas.ProPresenterVmixBridge.Entities\TiagoViegas.ProPresenterVmixBridge.Entities.csproj">
       <Project>{F7E827D3-8277-4F70-9549-237293D05B7F}</Project>
       <Name>TiagoViegas.ProPresenterVmixBridge.Entities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TiagoViegas.ProPresenterVmixBridge.Shared.Ioc\TiagoViegas.ProPresenterVmixBridge.Shared.Ioc.csproj">
+      <Project>{B85F66C3-11B5-4A35-A6CB-F4E545C735EE}</Project>
+      <Name>TiagoViegas.ProPresenterVmixBridge.Shared.Ioc</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

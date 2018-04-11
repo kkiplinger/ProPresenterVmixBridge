@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.ServiceProcess;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -43,8 +44,6 @@ namespace TiagoViegas.ProPresenterVmixBridge.ConfigurationApp
         {
             ToggleEnable(false);
 
-            
-
             _configManager.EditConfig(ConfigKeys.ProPresenterIp, ProPresenterIp.Text);
             _configManager.EditConfig(ConfigKeys.ProPresenterPort, ProPresenterPort.Text);
             _configManager.EditConfig(ConfigKeys.ProPresenterPassword, ProPresenterPassword.Text);
@@ -56,7 +55,7 @@ namespace TiagoViegas.ProPresenterVmixBridge.ConfigurationApp
             {
                 _configManager.SaveConfig();
             }
-            catch (Exception)
+            catch (Exception exception)
             {
                 MessageBox.Show("Access is denied!\nPlease run this application as administrator.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 ToggleEnable(true);
@@ -69,7 +68,11 @@ namespace TiagoViegas.ProPresenterVmixBridge.ConfigurationApp
             var proPresenterDA = _container.GetInstance<IProPresenterDataAgent>();
             var vmixDA = _container.GetInstance<IVmixDataAgent>();
 
-            await proPresenterDA.Connect(new System.Threading.CancellationToken());
+            var cancellationTokenSource = new CancellationTokenSource();
+
+            cancellationTokenSource.CancelAfter(5000);
+
+            await proPresenterDA.Connect(cancellationTokenSource.Token);
 
             var vmixReachable = await vmixDA.CheckConfig();
 
@@ -143,15 +146,37 @@ namespace TiagoViegas.ProPresenterVmixBridge.ConfigurationApp
 
         private void FillTextBoxes()
         {
-            _configManager.LoadConfig();
+            try
+            {
+                _configManager.LoadConfig();
 
-            ProPresenterIp.Text = _configManager.GetConfig(ConfigKeys.ProPresenterIp);
-            ProPresenterPort.Text = _configManager.GetConfig(ConfigKeys.ProPresenterPort);
-            ProPresenterPassword.Text = _configManager.GetConfig(ConfigKeys.ProPresenterPassword);
+                ProPresenterIp.Text = _configManager.GetConfig(ConfigKeys.ProPresenterIp);
+                ProPresenterPort.Text = _configManager.GetConfig(ConfigKeys.ProPresenterPort);
+                ProPresenterPassword.Text = _configManager.GetConfig(ConfigKeys.ProPresenterPassword);
 
-            VmixIp.Text = _configManager.GetConfig(ConfigKeys.VmixIp);
-            VmixPort.Text = _configManager.GetConfig(ConfigKeys.VmixPort);
-            VmixInput.Text = _configManager.GetConfig(ConfigKeys.VmixInputNumber);
+                VmixIp.Text = _configManager.GetConfig(ConfigKeys.VmixIp);
+                VmixPort.Text = _configManager.GetConfig(ConfigKeys.VmixPort);
+                VmixInput.Text = _configManager.GetConfig(ConfigKeys.VmixInputNumber);
+            }
+            catch (Exception e)
+            {
+                _configManager.EditConfig(ConfigKeys.ProPresenterIp, "127.0.0.1");
+                _configManager.EditConfig(ConfigKeys.ProPresenterPort, "50001");
+                _configManager.EditConfig(ConfigKeys.ProPresenterPassword, "");
+                _configManager.EditConfig(ConfigKeys.VmixIp, "127.0.0.1");
+                _configManager.EditConfig(ConfigKeys.VmixPort, "8088");
+                _configManager.EditConfig(ConfigKeys.VmixInputNumber, "1");
+
+
+                ProPresenterIp.Text = _configManager.GetConfig(ConfigKeys.ProPresenterIp);
+                ProPresenterPort.Text = _configManager.GetConfig(ConfigKeys.ProPresenterPort);
+                ProPresenterPassword.Text = _configManager.GetConfig(ConfigKeys.ProPresenterPassword);
+
+                VmixIp.Text = _configManager.GetConfig(ConfigKeys.VmixIp);
+                VmixPort.Text = _configManager.GetConfig(ConfigKeys.VmixPort);
+                VmixInput.Text = _configManager.GetConfig(ConfigKeys.VmixInputNumber);
+            }
+            
         }
 
         private void ResetButton_Click(object sender, RoutedEventArgs e)

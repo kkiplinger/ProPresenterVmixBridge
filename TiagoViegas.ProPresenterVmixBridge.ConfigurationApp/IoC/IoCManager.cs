@@ -1,6 +1,7 @@
 ﻿using SimpleInjector;
 using TiagoViegas.ProPresenterVmixBridge.Business.IoC;
 using TiagoViegas.ProPresenterVmixBridge.Data.IoC;
+using TiagoViegas.ProPresenterVmixBridge.Shared.Ioc;
 
 namespace TiagoViegas.ProPresenterVmixBridge.ConfigurationApp.IoC
 {
@@ -10,8 +11,9 @@ namespace TiagoViegas.ProPresenterVmixBridge.ConfigurationApp.IoC
         {
             var container = new Container();
 
-            BusinessIocManager.BootstrapBusiness(container);
-            DataIocManager.BootstrapData(container);
+            BusinessIocManager.RegisterDependenciesInto(container);
+            DataIocManager.RegisterDependenciesInto(container);
+            SharedIocManager.RegisterDependenciesInto(container);
 
             return container;
         }

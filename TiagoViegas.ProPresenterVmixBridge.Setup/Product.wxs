@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-  <Product Id="*" Name="ProPresenter Vmix Bridge" Language="1033" Version="1.0.0.0" Manufacturer="Tiago Viegas" UpgradeCode="ea2e59a0-90b9-47c7-a2e1-cd856c241336">
+  <Product Id="*" Name="ProPresenter Vmix Bridge" Language="1033" Version="1.0.2.0" Manufacturer="Tiago Viegas" UpgradeCode="ea2e59a0-90b9-47c7-a2e1-cd856c241336">
     <Package InstallerVersion="300" Compressed="yes" InstallScope="perMachine"/>
 
     <MajorUpgrade DowngradeErrorMessage="A newer version of ProPresenter Vmix Bridge is already installed." />
@@ -8,7 +8,9 @@
 
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFilesFolder">
-        <Directory Id="ROOTDIRECTORY" Name="ProPresenter Vmix Bridge"/>
+        <Directory Id="ROOTDIRECTORY" Name="ProPresenter Vmix Bridge">
+          <Directory Id="LOGS" Name="logs"/>
+        </Directory>
       </Directory>
       <Directory Id="ProgramMenuFolder">
         <Directory Id="ApplicationProgramsFolder" Name="ProPresenter Vmix Bridge"></Directory>
@@ -38,6 +40,12 @@
       <Component Id="$(var.TiagoViegas.ProPresenterVmixBridge.Entities.TargetFileName)">
         <File Id="$(var.TiagoViegas.ProPresenterVmixBridge.Entities.TargetFileName)" Source="$(var.TiagoViegas.ProPresenterVmixBridge.Entities.TargetPath)" KeyPath="yes"></File>
       </Component>
+      <Component Id="$(var.TiagoViegas.ProPresenterVmixBridge.Shared.Ioc.TargetFileName)">
+        <File Id="$(var.TiagoViegas.ProPresenterVmixBridge.Shared.Ioc.TargetFileName)" Source="$(var.TiagoViegas.ProPresenterVmixBridge.Shared.Ioc.TargetPath)" KeyPath="yes"></File>
+      </Component>
+      <Component Id="$(var.TiagoViegas.ProPresenterVmixBridge.Logging.TargetFileName)">
+        <File Id="$(var.TiagoViegas.ProPresenterVmixBridge.Logging.TargetFileName)" Source="$(var.TiagoViegas.ProPresenterVmixBridge.Logging.TargetPath)" KeyPath="yes"></File>
+      </Component>
       <Component Id="Newtonsoft.Json.dll" Guid="{99b83259-41ea-49b5-a205-876040d2cf90}">
         <File Id="Newtonsoft.Json.dll" Source="$(var.TiagoViegas.ProPresenterVmixBridge.WindowsService.TargetDir)Newtonsoft.Json.dll" KeyPath="yes"></File>
       </Component>
@@ -50,14 +58,27 @@
       <Component Id="SimpleInjector.xml" Guid="{9aeca65b-1871-4bc2-a09b-390de14c0ec7}">
         <File Id="SimpleInjector.xml" Source="$(var.TiagoViegas.ProPresenterVmixBridge.WindowsService.TargetDir)SimpleInjector.xml" KeyPath="yes"></File>
       </Component>
+      <Component Id="log4net.dll" Guid="{66c3081a-c581-4e09-b2e0-053f462edb31}">
+        <File Id="log4net.dll" Source="$(var.TiagoViegas.ProPresenterVmixBridge.WindowsService.TargetDir)log4net.dll" KeyPath="yes"></File>
+      </Component>
+      <Component Id="log4net.xml" Guid="{d7d037aa-294e-4c44-8343-cd004809cf5c}">
+        <File Id="log4net.xml" Source="$(var.TiagoViegas.ProPresenterVmixBridge.WindowsService.TargetDir)log4net.xml" KeyPath="yes"></File>
+      </Component>
       <Component Id="$(var.TiagoViegas.ProPresenterVmixBridge.ConfigurationApp.TargetFileName)" >
         <File Id="$(var.TiagoViegas.ProPresenterVmixBridge.ConfigurationApp.TargetFileName)" Source="$(var.TiagoViegas.ProPresenterVmixBridge.ConfigurationApp.TargetPath)" KeyPath="yes" />
+      </Component>
+      <Component Id="$(var.TiagoViegas.ProPresenterVmixBridge.WindowsService.TargetFileName).config" Guid="{4eaa3a7a-2a8b-478f-8256-1c111136a87f}">
+        <File Id="$(var.TiagoViegas.ProPresenterVmixBridge.WindowsService.TargetFileName).config" Source="$(var.TiagoViegas.ProPresenterVmixBridge.WindowsService.TargetDir)$(var.TiagoViegas.ProPresenterVmixBridge.WindowsService.TargetFileName).config" KeyPath="yes"></File>
+      </Component>
+      <Component Id="$(var.TiagoViegas.ProPresenterVmixBridge.ConfigurationApp.TargetFileName).config" Guid="{08f6a431-791b-4ab4-a38b-75acf3dc035c}">
+        <File Id="$(var.TiagoViegas.ProPresenterVmixBridge.ConfigurationApp.TargetFileName).config" Source="$(var.TiagoViegas.ProPresenterVmixBridge.ConfigurationApp.TargetDir)$(var.TiagoViegas.ProPresenterVmixBridge.ConfigurationApp.TargetFileName).config" KeyPath="yes"></File>
       </Component>
 
       <Component Id="$(var.TiagoViegas.ProPresenterVmixBridge.WindowsService.TargetFileName)" >
         <File Id="$(var.TiagoViegas.ProPresenterVmixBridge.WindowsService.TargetFileName)" Source="$(var.TiagoViegas.ProPresenterVmixBridge.WindowsService.TargetPath)" KeyPath="yes" />
         <!-- Remove all files from the INSTALLFOLDER on uninstall -->
         <RemoveFile Id="ALLFILES" Name="*.*" On="both" />
+        <RemoveFolder Id="CleanUpLogs" Directory="LOGS" On="uninstall"/>
         <!-- Tell WiX to install the Service -->
         <ServiceInstall Id="ServiceInstaller"
         Type="ownProcess"
@@ -67,10 +88,9 @@
         Start="auto"
         ErrorControl="normal" />
         <!-- Tell WiX to start the Service -->
-        <ServiceControl Id="StartService" Start="install" Stop="both" Remove="uninstall" Name="ProPresenterVmixBridgeService" Wait="yes" />
+        <!--<ServiceControl Id="StartService" Start="install" Stop="both" Remove="uninstall" Name="ProPresenterVmixBridgeService" Wait="yes" />-->
       </Component>
     </DirectoryRef>
-
     <DirectoryRef Id="DesktopFolder">
       <Component Id="ApplicationShortcutDesktop" Guid="*">
         <Shortcut Id="ApplicationDesktopShortcut"
@@ -97,6 +117,8 @@
 
     <Feature Id="ProductFeature" Title="ProPresenterVmixBridge" Level="1">
       <ComponentRef Id="config.json" />
+      <ComponentRef Id="$(var.TiagoViegas.ProPresenterVmixBridge.Shared.Ioc.TargetFileName)"/>
+      <ComponentRef Id="$(var.TiagoViegas.ProPresenterVmixBridge.Logging.TargetFileName)"/>
       <ComponentRef Id="$(var.TiagoViegas.ProPresenterVmixBridge.WindowsService.TargetFileName)"/>
       <ComponentRef Id="$(var.TiagoViegas.ProPresenterVmixBridge.ConfigurationApp.TargetFileName)"/>
       <ComponentRef Id="$(var.TiagoViegas.ProPresenterVmixBridge.Business.TargetFileName)"/>
@@ -105,10 +127,14 @@
       <ComponentRef Id="$(var.TiagoViegas.ProPresenterVmixBridge.Data.IoC.TargetFileName)"/>
       <ComponentRef Id="$(var.TiagoViegas.ProPresenterVmixBridge.DataAgents.TargetFileName)"/>
       <ComponentRef Id="$(var.TiagoViegas.ProPresenterVmixBridge.Entities.TargetFileName)"/>
+      <ComponentRef Id="$(var.TiagoViegas.ProPresenterVmixBridge.WindowsService.TargetFileName).config"/>
+      <ComponentRef Id="$(var.TiagoViegas.ProPresenterVmixBridge.ConfigurationApp.TargetFileName).config"/>
       <ComponentRef Id="Newtonsoft.Json.dll"/>
       <ComponentRef Id="Newtonsoft.Json.xml"/>
       <ComponentRef Id="SimpleInjector.dll"/>
       <ComponentRef Id="SimpleInjector.xml"/>
+      <ComponentRef Id="log4net.dll"/>
+      <ComponentRef Id="log4net.xml"/>
       <ComponentRef Id="ApplicationShortcut"/>
       <ComponentRef Id="ApplicationShortcutDesktop"/>
     </Feature>

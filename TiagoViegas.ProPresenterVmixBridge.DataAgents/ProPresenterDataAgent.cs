@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TiagoViegas.ProPresenterVmixBridge.Data.Interfaces;
 using TiagoViegas.ProPresenterVmixBridge.Entities;
+using TiagoViegas.ProPresenterVmixBridge.Logging;
 
 namespace TiagoViegas.ProPresenterVmixBridge.DataAgents
 {
@@ -19,14 +20,33 @@ namespace TiagoViegas.ProPresenterVmixBridge.DataAgents
         public bool Connected { get; set; }
         public bool Connecting { get; set; }
         private CancellationTokenSource CancellationTokenSource { get; set; }
+        private readonly ILogger _logger;
 
         private bool StopListening { get; set; }
 
-        public ProPresenterDataAgent(IConfigManager configManager)
+        public ProPresenterDataAgent(IConfigManager configManager, ILogger logger)
         {
-            _ip = configManager.GetConfig(ConfigKeys.ProPresenterIp);
-            _port = configManager.GetConfig(ConfigKeys.ProPresenterPort);
-            _password = configManager.GetConfig(ConfigKeys.ProPresenterPassword);
+            _logger = logger;
+            try
+            {
+                _ip = configManager.GetConfig(ConfigKeys.ProPresenterIp);
+                _port = configManager.GetConfig(ConfigKeys.ProPresenterPort);
+                _password = configManager.GetConfig(ConfigKeys.ProPresenterPassword);
+            }
+            catch (Exception e)
+            {
+                _ip = "127.0.0.1";
+                _port = "50001";
+                _password = "";
+                _logger.LogError("Error reading configuration file", e);
+
+                configManager.EditConfig(ConfigKeys.ProPresenterIp, _ip);
+                configManager.EditConfig(ConfigKeys.ProPresenterPort, _port);
+                configManager.EditConfig(ConfigKeys.ProPresenterPassword, _password);
+
+                configManager.SaveConfig();
+            }
+            
             Connected = false;
             Connecting = false;
             StopListening = false;
@@ -43,13 +63,15 @@ namespace TiagoViegas.ProPresenterVmixBridge.DataAgents
 
             _socket.Options.KeepAliveInterval = new TimeSpan(24,0,0);
 
+
             Connecting = true;
 
             try
-            {
+            {   
+                _logger.LogInfoFormat("Connecting to {0}", $"ws://{_ip}:{_port}/stagedisplay");
                 await _socket.ConnectAsync(new Uri($"ws://{_ip}:{_port}/stagedisplay"), cancellationToken);
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 Connected = false;
                 Connecting = false;

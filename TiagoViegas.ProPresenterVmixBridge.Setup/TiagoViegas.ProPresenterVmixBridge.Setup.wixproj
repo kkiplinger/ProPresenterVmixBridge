@@ -78,6 +78,22 @@
       <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
       <RefTargetDir>INSTALLFOLDER</RefTargetDir>
     </ProjectReference>
+    <ProjectReference Include="..\TiagoViegas.ProPresenterVmixBridge.Logging\TiagoViegas.ProPresenterVmixBridge.Logging.csproj">
+      <Name>TiagoViegas.ProPresenterVmixBridge.Logging</Name>
+      <Project>{b9903391-90e7-4fdf-ac76-053406b7a872}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\TiagoViegas.ProPresenterVmixBridge.Shared.Ioc\TiagoViegas.ProPresenterVmixBridge.Shared.Ioc.csproj">
+      <Name>TiagoViegas.ProPresenterVmixBridge.Shared.Ioc</Name>
+      <Project>{b85f66c3-11b5-4a35-a6cb-f4e545c735ee}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
     <ProjectReference Include="..\TiagoViegas.ProPresenterVmixBridge.WindowsService\TiagoViegas.ProPresenterVmixBridge.WindowsService.csproj">
       <Name>TiagoViegas.ProPresenterVmixBridge.WindowsService</Name>
       <Project>{81fb264c-5e00-4b49-8b55-dd16f224dadc}</Project>

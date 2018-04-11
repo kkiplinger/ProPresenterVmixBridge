@@ -17,8 +17,8 @@ namespace TiagoViegas.ProPresenterVmixBridge.Tests
             var container = new Container();
             container.Options.AllowOverridingRegistrations = true;
 
-            BusinessIocManager.BootstrapBusiness(container);
-            DataIocManager.BootstrapData(container);
+            BusinessIocManager.RegisterDependenciesInto(container);
+            DataIocManager.RegisterDependenciesInto(container);
 
             container.Register<IConfigManager, ConfigManagerMock>(Lifestyle.Singleton);
 

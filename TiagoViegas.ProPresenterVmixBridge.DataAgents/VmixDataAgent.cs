@@ -3,23 +3,38 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using TiagoViegas.ProPresenterVmixBridge.Data.Interfaces;
 using TiagoViegas.ProPresenterVmixBridge.Entities;
+using TiagoViegas.ProPresenterVmixBridge.Logging;
 
 namespace TiagoViegas.ProPresenterVmixBridge.DataAgents
 {
     public class VmixDataAgent : IVmixDataAgent
     {
-        private readonly string _ip;
-        private readonly string _port;
         private readonly string _inputNumber;
-        private readonly System.Uri _baseAddress;
+        private readonly Uri _baseAddress;
 
-        public VmixDataAgent(IConfigManager configManager)
+        public VmixDataAgent(IConfigManager configManager, ILogger logger)
         {
-            _ip = configManager.GetConfig(ConfigKeys.VmixIp);
-            _port = configManager.GetConfig(ConfigKeys.VmixPort);
-            _inputNumber = configManager.GetConfig(ConfigKeys.VmixInputNumber);
+            try
+            {
+                var ip = configManager.GetConfig(ConfigKeys.VmixIp);
+                var port = configManager.GetConfig(ConfigKeys.VmixPort);
+                _inputNumber = configManager.GetConfig(ConfigKeys.VmixInputNumber);
+                _baseAddress = new Uri($"http://{ip}:{port}");
+            }
+            catch (Exception e)
+            {
+                logger.LogError("Error while reading configuration file", e);
 
-            _baseAddress = new Uri($"http://{_ip}:{_port}");
+                const string ip = "127.0.0.1";
+                const string port = "8088";
+                _inputNumber = "1";
+                _baseAddress = new Uri($"http://{ip}:{port}");
+
+
+                configManager.EditConfig(ConfigKeys.VmixIp, ip);
+                configManager.EditConfig(ConfigKeys.VmixPort, port);
+                configManager.EditConfig(ConfigKeys.VmixInputNumber, _inputNumber);
+            }
         }
 
         public async Task SendText(string text) {
@@ -30,8 +45,6 @@ namespace TiagoViegas.ProPresenterVmixBridge.DataAgents
                 var result = await client.GetAsync($"/api/?Function=SetText&SelectedIndex=0&Input={_inputNumber}&Value={text}");
 
                 result.EnsureSuccessStatusCode();
-
-                Console.WriteLine(_baseAddress + $"/api/?Function=SetText&SelectedIndex=0&Input={_inputNumber}&Value={text}");
             }
         }
 

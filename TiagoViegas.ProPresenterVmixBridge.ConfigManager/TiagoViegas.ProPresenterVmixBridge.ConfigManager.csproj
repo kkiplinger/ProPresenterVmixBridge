@@ -52,6 +52,10 @@
       <Project>{F4656D52-FDDA-4026-B25D-01D19D4B861E}</Project>
       <Name>TiagoViegas.ProPresenterVmixBridge.Data.Interfaces</Name>
     </ProjectReference>
+    <ProjectReference Include="..\TiagoViegas.ProPresenterVmixBridge.Logging\TiagoViegas.ProPresenterVmixBridge.Logging.csproj">
+      <Project>{B9903391-90E7-4FDF-AC76-053406B7A872}</Project>
+      <Name>TiagoViegas.ProPresenterVmixBridge.Logging</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.ServiceProcess;
 using System.Text;
 using System.Threading.Tasks;
+using TiagoViegas.ProPresenterVmixBridge.WindowsService.IoC;
 
 namespace TiagoViegas.ProPresenterVmixBridge.WindowsService
 {
@@ -15,9 +17,12 @@ namespace TiagoViegas.ProPresenterVmixBridge.WindowsService
         static void Main()
         {
             ServiceBase[] ServicesToRun;
+
+            var service = IoCManager.CreateContainer().GetInstance<ProPresenterVmixBridgeService>();
+
             ServicesToRun = new ServiceBase[]
             {
-                new ProPresenterVmixBridgeService()
+                service
             };
             ServiceBase.Run(ServicesToRun);
         }
