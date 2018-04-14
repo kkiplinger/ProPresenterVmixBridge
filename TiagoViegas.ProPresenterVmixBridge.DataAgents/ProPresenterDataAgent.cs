@@ -5,6 +5,7 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+//using ArkaneSystems.Arkane.Zeroconf;
 using TiagoViegas.ProPresenterVmixBridge.Data.Interfaces;
 using TiagoViegas.ProPresenterVmixBridge.Entities;
 using TiagoViegas.ProPresenterVmixBridge.Logging;
@@ -13,8 +14,8 @@ namespace TiagoViegas.ProPresenterVmixBridge.DataAgents
 {
     public class ProPresenterDataAgent : IProPresenterDataAgent
     {
-        private readonly string _ip;
-        private readonly string _port;
+        private string _ip;
+        private string _port;
         private readonly string _password;
         private ClientWebSocket _socket;
         public bool Connected { get; set; }
@@ -22,10 +23,20 @@ namespace TiagoViegas.ProPresenterVmixBridge.DataAgents
         private CancellationTokenSource CancellationTokenSource { get; set; }
         private readonly ILogger _logger;
 
+        //private readonly ServiceBrowser _serviceBrowser;
+
+        
+
         private bool StopListening { get; set; }
 
         public ProPresenterDataAgent(IConfigManager configManager, ILogger logger)
         {
+
+            //_serviceBrowser = new ServiceBrowser();
+
+            //_serviceBrowser.ServiceAdded += OnServiceAdded;
+            //_serviceBrowser.ServiceRemoved += OnServiceRemoved;
+
             _logger = logger;
             try
             {
@@ -52,6 +63,36 @@ namespace TiagoViegas.ProPresenterVmixBridge.DataAgents
             StopListening = false;
         }
 
+        //private void OnServiceRemoved(object o, ServiceBrowseEventArgs args)
+        //{
+        //    if (Connected)
+        //    {
+        //        CancellationTokenSource.Cancel();
+        //    }
+        //}
+
+        //private void OnServiceAdded(object o, ServiceBrowseEventArgs args)
+        //{
+        //    args.Service.Resolved += OnResolved;
+        //    args.Service.Resolve();
+        //}
+
+        //private async void OnResolved(object o, ServiceResolvedEventArgs args)
+        //{
+        //    _port = args.Service.Port.ToString();
+        //    _ip = args.Service.HostEntry.AddressList[0].ToString();
+
+        //    await Connect(CancellationTokenSource.Token);
+        //}
+
+        public void LookForProPresenter()
+        {
+            CancellationTokenSource = new CancellationTokenSource();
+            
+            //_serviceBrowser.Browse("_pro6stagedsply._tcp", "local");
+        }
+
+
         public async Task Connect(CancellationToken cancellationToken)
         {
             if (Connecting)
@@ -73,6 +114,7 @@ namespace TiagoViegas.ProPresenterVmixBridge.DataAgents
             }
             catch (Exception e)
             {
+                _logger.LogError("Could not connect", e);
                 Connected = false;
                 Connecting = false;
                 return;
@@ -101,13 +143,16 @@ namespace TiagoViegas.ProPresenterVmixBridge.DataAgents
 
                         var message = Encoding.UTF8.GetString(resultArray);
 
-                        var messageObject = JsonConvert.DeserializeObject<ProPresenterAuthMessage>(message);
+                        var messageObject = JsonConvert.DeserializeObject<ProPresenterMessage>(message);
 
                         if (messageObject != null && messageObject.Action == ProPresenterActions.Auth)
                         {
-                            if (messageObject.Authorized)
+                            var authMessage = JsonConvert.DeserializeObject<ProPresenterAuthMessage>(message);
+
+                            if (authMessage.Authorized)
                             {
                                 Connected = true;
+                                _logger.LogInfo("Connected");
                             }
                             break;
                         }

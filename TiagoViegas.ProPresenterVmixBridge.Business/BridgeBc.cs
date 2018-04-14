@@ -60,13 +60,19 @@ namespace TiagoViegas.ProPresenterVmixBridge.Business
 
                 _proPresenterDa.Listen((x) =>
                 {
-                    var text = new StringBuilder(x.Array.FirstOrDefault(y => y.Action == ProPresenterActions.CurrentSlide)?.Text.Trim('\n'));
+                    var slide = x.Array.FirstOrDefault(y => y.Action == ProPresenterActions.CurrentSlide);
 
-                    text.Replace('\n', ' ');
+                    if (slide != null)
+                    {
+                        var text = new StringBuilder(slide.Text.Trim('\n'));
 
-                    _logger.LogInfoFormat("Received {0}", text);
+                        text.Replace('\n', ' ');
 
-                    _vmixDa.SendText(text.ToString());
+                        _logger.LogInfoFormat("Received {0}", text);
+
+                        _vmixDa.SendText(text.ToString());
+                    }
+                    
                 });
 
                 BridgeOn = true;

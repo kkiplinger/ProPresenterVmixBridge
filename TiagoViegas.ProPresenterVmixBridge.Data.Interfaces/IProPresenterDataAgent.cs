@@ -13,5 +13,6 @@ namespace TiagoViegas.ProPresenterVmixBridge.Data.Interfaces
         Task Close();
         void Listen(Action<ProPresenterNewSlideMessage> action);
         void StopListen();
+        void LookForProPresenter();
     }
 }

@@ -5,11 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using TiagoViegas.ProPresenterVmixBridge.Business.Interfaces;
 using TiagoViegas.ProPresenterVmixBridge.Console.IoC;
+using TiagoViegas.ProPresenterVmixBridge.Data.Interfaces;
 
 namespace TiagoViegas.ProPresenterVmixBridge.Console
 {
     class Program
     {
+        [MTAThread]
         static void Main(string[] args)
         {
             var container = IoCManager.CreateContainer();
@@ -67,7 +69,7 @@ namespace TiagoViegas.ProPresenterVmixBridge.Console
                         {
                             System.Console.WriteLine("Wait for connection.");
                         }
-                        
+
                         break;
 
                 }

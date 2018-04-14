@@ -57,6 +57,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="config.json" />
     <None Include="packages.config" />
   </ItemGroup>
@@ -76,6 +77,10 @@
     <ProjectReference Include="..\TiagoViegas.ProPresenterVmixBridge.Entities\TiagoViegas.ProPresenterVmixBridge.Entities.csproj">
       <Project>{F7E827D3-8277-4F70-9549-237293D05B7F}</Project>
       <Name>TiagoViegas.ProPresenterVmixBridge.Entities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TiagoViegas.ProPresenterVmixBridge.Shared.Ioc\TiagoViegas.ProPresenterVmixBridge.Shared.Ioc.csproj">
+      <Project>{B85F66C3-11B5-4A35-A6CB-F4E545C735EE}</Project>
+      <Name>TiagoViegas.ProPresenterVmixBridge.Shared.Ioc</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />

@@ -61,6 +61,10 @@
       <Project>{aa0d6628-9828-4604-bfd7-d4a4340b826b}</Project>
       <Name>TiagoViegas.ProPresenterVmixBridge.Business</Name>
     </ProjectReference>
+    <ProjectReference Include="..\TiagoViegas.ProPresenterVmixBridge.Data.Interfaces\TiagoViegas.ProPresenterVmixBridge.Data.Interfaces.csproj">
+      <Project>{F4656D52-FDDA-4026-B25D-01D19D4B861E}</Project>
+      <Name>TiagoViegas.ProPresenterVmixBridge.Data.Interfaces</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TiagoViegas.ProPresenterVmixBridge.Data.IoC\TiagoViegas.ProPresenterVmixBridge.Data.IoC.csproj">
       <Project>{377F1163-6522-4F36-8643-E1996940128E}</Project>
       <Name>TiagoViegas.ProPresenterVmixBridge.Data.IoC</Name>

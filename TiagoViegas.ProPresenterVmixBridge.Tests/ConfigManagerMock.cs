@@ -22,11 +22,11 @@ namespace TiagoViegas.ProPresenterVmixBridge.Tests
             switch (key)
             {
                 case ConfigKeys.ProPresenterIp:
-                    return "192.168.1.66";
+                    return "192.168.1.68";
                 case ConfigKeys.ProPresenterPassword:
                     return "123";
                 case ConfigKeys.ProPresenterPort:
-                    return "52478";
+                    return "50001";
                 case ConfigKeys.VmixIp:
                     return "127.0.0.1";
                 case ConfigKeys.VmixPort:

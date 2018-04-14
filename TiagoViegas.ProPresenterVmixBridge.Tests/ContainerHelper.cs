@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using TiagoViegas.ProPresenterVmixBridge.Business.IoC;
 using TiagoViegas.ProPresenterVmixBridge.Data.Interfaces;
 using TiagoViegas.ProPresenterVmixBridge.Data.IoC;
+using TiagoViegas.ProPresenterVmixBridge.Shared.Ioc;
 
 namespace TiagoViegas.ProPresenterVmixBridge.Tests
 {
@@ -19,6 +20,7 @@ namespace TiagoViegas.ProPresenterVmixBridge.Tests
 
             BusinessIocManager.RegisterDependenciesInto(container);
             DataIocManager.RegisterDependenciesInto(container);
+            SharedIocManager.RegisterDependenciesInto(container);
 
             container.Register<IConfigManager, ConfigManagerMock>(Lifestyle.Singleton);
 
