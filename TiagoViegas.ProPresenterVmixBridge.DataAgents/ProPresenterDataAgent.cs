@@ -1,11 +1,12 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-//using ArkaneSystems.Arkane.Zeroconf;
+using ArkaneSystems.Arkane.Zeroconf;
 using TiagoViegas.ProPresenterVmixBridge.Data.Interfaces;
 using TiagoViegas.ProPresenterVmixBridge.Entities;
 using TiagoViegas.ProPresenterVmixBridge.Logging;
@@ -14,47 +15,44 @@ namespace TiagoViegas.ProPresenterVmixBridge.DataAgents
 {
     public class ProPresenterDataAgent : IProPresenterDataAgent
     {
-        private string _ip;
-        private string _port;
         private readonly string _password;
         private ClientWebSocket _socket;
         public bool Connected { get; set; }
         public bool Connecting { get; set; }
         private CancellationTokenSource CancellationTokenSource { get; set; }
         private readonly ILogger _logger;
+        private readonly ICollection<ProPresenterInstance> _instances;
+        private string ConnectedInstance { get; set; }
+        public IReadOnlyCollection<ProPresenterInstance> Instances => (IReadOnlyCollection<ProPresenterInstance>)_instances;
 
-        //private readonly ServiceBrowser _serviceBrowser;
+        public event EventHandler<ProPresenterInstancesChangedEventArgs> OnProPresenterInstancesChanged;
+        public event EventHandler OnConnected;
+        public event EventHandler OnDisconnected;
 
-        
+        private readonly ServiceBrowser _serviceBrowser;
 
         private bool StopListening { get; set; }
 
         public ProPresenterDataAgent(IConfigManager configManager, ILogger logger)
         {
+            _instances = new List<ProPresenterInstance>();
 
-            //_serviceBrowser = new ServiceBrowser();
+            _serviceBrowser = new ServiceBrowser();
 
-            //_serviceBrowser.ServiceAdded += OnServiceAdded;
-            //_serviceBrowser.ServiceRemoved += OnServiceRemoved;
+            _serviceBrowser.ServiceAdded += OnServiceAdded;
+            _serviceBrowser.ServiceRemoved += OnServiceRemoved;
 
             _logger = logger;
             try
             {
-                _ip = configManager.GetConfig(ConfigKeys.ProPresenterIp);
-                _port = configManager.GetConfig(ConfigKeys.ProPresenterPort);
                 _password = configManager.GetConfig(ConfigKeys.ProPresenterPassword);
             }
             catch (Exception e)
             {
-                _ip = "127.0.0.1";
-                _port = "50001";
                 _password = "";
                 _logger.LogError("Error reading configuration file", e);
 
-                configManager.EditConfig(ConfigKeys.ProPresenterIp, _ip);
-                configManager.EditConfig(ConfigKeys.ProPresenterPort, _port);
                 configManager.EditConfig(ConfigKeys.ProPresenterPassword, _password);
-
                 configManager.SaveConfig();
             }
             
@@ -63,37 +61,70 @@ namespace TiagoViegas.ProPresenterVmixBridge.DataAgents
             StopListening = false;
         }
 
-        //private void OnServiceRemoved(object o, ServiceBrowseEventArgs args)
-        //{
-        //    if (Connected)
-        //    {
-        //        CancellationTokenSource.Cancel();
-        //    }
-        //}
+        private async void OnServiceRemoved(object o, ServiceBrowseEventArgs args)
+        {
+            var name = args.Service.Name;
 
-        //private void OnServiceAdded(object o, ServiceBrowseEventArgs args)
-        //{
-        //    args.Service.Resolved += OnResolved;
-        //    args.Service.Resolve();
-        //}
+            var instance = _instances.FirstOrDefault(x => x.Name == name);
 
-        //private async void OnResolved(object o, ServiceResolvedEventArgs args)
-        //{
-        //    _port = args.Service.Port.ToString();
-        //    _ip = args.Service.HostEntry.AddressList[0].ToString();
+            if (instance != null)
+            {
+                _instances.Remove(instance);
 
-        //    await Connect(CancellationTokenSource.Token);
-        //}
+                if (Connected && ConnectedInstance == instance.Name)
+                {
+                    StopListen();
+                    await Close();
+                    ConnectedInstance = null;
+                }
+
+                OnProPresenterInstancesChanged?.Invoke(this, new ProPresenterInstancesChangedEventArgs { Instances = _instances.ToList() });
+            }
+        }
+
+        private void OnServiceAdded(object o, ServiceBrowseEventArgs args)
+        {
+            args.Service.Resolved += OnResolved;
+            args.Service.Resolve();
+        }
+
+        private void OnResolved(object o, ServiceResolvedEventArgs args)
+        {
+            if (_instances.All(x => x.Name != args.Service.Name))
+            {
+                _instances.Add(new ProPresenterInstance
+                {
+                    Name = args.Service.Name,
+                    Port = ((ushort)args.Service.Port).ToString(),
+                    Ip = args.Service.HostEntry.AddressList[0].ToString(),
+                });
+
+                OnProPresenterInstancesChanged?.Invoke(this, new ProPresenterInstancesChangedEventArgs { Instances = _instances.ToList()});
+            }
+        }
 
         public void LookForProPresenter()
         {
-            CancellationTokenSource = new CancellationTokenSource();
-            
-            //_serviceBrowser.Browse("_pro6stagedsply._tcp", "local");
+            _serviceBrowser.Browse("_pro6stagedsply._tcp", "local");
+        }
+
+        public async Task Connect(string instanceName, CancellationToken cancellationToken)
+        {
+            var instance = _instances.FirstOrDefault(x => x.Name == instanceName);
+
+            if (instance != null)
+            {
+                await Connect(cancellationToken, instance.Ip, instance.Port);
+                ConnectedInstance = instance.Name;
+            }
+            else
+            {
+                _logger.LogErrorFormat("No instance found with name: {0}", instanceName);
+            }
         }
 
 
-        public async Task Connect(CancellationToken cancellationToken)
+        private async Task Connect(CancellationToken cancellationToken, string ip, string port)
         {
             if (Connecting)
             {
@@ -104,13 +135,12 @@ namespace TiagoViegas.ProPresenterVmixBridge.DataAgents
 
             _socket.Options.KeepAliveInterval = new TimeSpan(24,0,0);
 
-
             Connecting = true;
 
             try
             {   
-                _logger.LogInfoFormat("Connecting to {0}", $"ws://{_ip}:{_port}/stagedisplay");
-                await _socket.ConnectAsync(new Uri($"ws://{_ip}:{_port}/stagedisplay"), cancellationToken);
+                _logger.LogInfoFormat("Connecting to {0}", $"ws://{ip}:{port}/stagedisplay");
+                await _socket.ConnectAsync(new Uri($"ws://{ip}:{port}/stagedisplay"), cancellationToken);
             }
             catch (Exception e)
             {
@@ -130,7 +160,7 @@ namespace TiagoViegas.ProPresenterVmixBridge.DataAgents
 
             var receiveTask = new Task(async () =>
             {
-                var rcvArray = new byte[128];
+                var rcvArray = new byte[2048];
                 var rcvBuffer = new ArraySegment<byte>(rcvArray);
 
                 while (true)
@@ -153,6 +183,7 @@ namespace TiagoViegas.ProPresenterVmixBridge.DataAgents
                             {
                                 Connected = true;
                                 _logger.LogInfo("Connected");
+                                OnConnected?.Invoke(this, new EventArgs());
                             }
                             break;
                         }
@@ -178,6 +209,8 @@ namespace TiagoViegas.ProPresenterVmixBridge.DataAgents
         public void Listen(Action<ProPresenterNewSlideMessage> action)
         {
             CancellationTokenSource = new CancellationTokenSource();
+
+            StopListening = false;
 
             Task.Factory.StartNew(async () =>
             {
@@ -219,10 +252,18 @@ namespace TiagoViegas.ProPresenterVmixBridge.DataAgents
             }
 
             CancellationTokenSource = new CancellationTokenSource();
-            await _socket.CloseAsync(WebSocketCloseStatus.NormalClosure, null, CancellationTokenSource.Token);
+            try
+            {
+                await _socket.CloseAsync(WebSocketCloseStatus.NormalClosure, null, CancellationTokenSource.Token);
+            }
+            catch (Exception)
+            {
+            }
             _socket.Dispose();
             Connected = false;
             Connecting = false;
+            _logger.LogInfo("Disconnected");
+            OnDisconnected?.Invoke(this, new EventArgs());
         }
     }
 }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TiagoViegas.ProPresenterVmixBridge.Business.Interfaces;
@@ -23,7 +25,7 @@ namespace TiagoViegas.ProPresenterVmixBridge.Tests
         [TestMethod]
         public async Task BridgeBc_Bridge()
         {
-            await _bridgeBc.Bridge();
+            _bridgeBc.Bridge();
 
             await Task.Delay(60000);
 
@@ -32,9 +34,13 @@ namespace TiagoViegas.ProPresenterVmixBridge.Tests
 
 
         [TestMethod]
-        public void ProPresenterDataAgent_Look()
+        public async Task ProPresenterDataAgent_Look()
         {
              _presenterDataAgent.LookForProPresenter();
+
+            while (!_presenterDataAgent.Instances.Any()) { }
+
+            var instances = _presenterDataAgent.Instances;
         }
     }
 }

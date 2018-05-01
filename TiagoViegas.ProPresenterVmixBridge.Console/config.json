@@ -4,6 +4,10 @@
     "value": "192.168.1.64"
   },
   {
+    "key": "ProPresenterName",
+    "value": "192.168.1.64"
+  },
+  {
     "key": "ProPresenterPort",
     "value": "50001"
   },

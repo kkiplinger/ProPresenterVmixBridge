@@ -21,6 +21,8 @@ namespace TiagoViegas.ProPresenterVmixBridge.Tests
         {
             switch (key)
             {
+                case ConfigKeys.ProPresenterName:
+                    return "PROPRESENTER";
                 case ConfigKeys.ProPresenterIp:
                     return "192.168.1.68";
                 case ConfigKeys.ProPresenterPassword:

@@ -9,7 +9,7 @@ namespace TiagoViegas.ProPresenterVmixBridge.Business.Interfaces
         bool BridgeOn { get; }
         bool Connecting { get; }
         void OnConnection(Action action);
-        Task Bridge();
+        void Bridge();
         Task Close();
     }
 }

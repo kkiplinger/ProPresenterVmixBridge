@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TiagoViegas.ProPresenterVmixBridge.Entities
+﻿namespace TiagoViegas.ProPresenterVmixBridge.Entities
 {
     public class ConfigKeys
     {
@@ -14,5 +8,7 @@ namespace TiagoViegas.ProPresenterVmixBridge.Entities
         public const string VmixIp = "VmixIp";
         public const string VmixPort = "VmixPort";
         public const string VmixInputNumber = "VmixInputNumber";
+
+        public const string ProPresenterName = "ProPresenterName";
     }
 }

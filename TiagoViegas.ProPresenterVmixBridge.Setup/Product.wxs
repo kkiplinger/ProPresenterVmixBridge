@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-  <Product Id="*" Name="ProPresenter Vmix Bridge" Language="1033" Version="1.0.2.0" Manufacturer="Tiago Viegas" UpgradeCode="ea2e59a0-90b9-47c7-a2e1-cd856c241336">
+  <Product Id="*" Name="ProPresenter Vmix Bridge" Language="1033" Version="1.1.0.0" Manufacturer="Tiago Viegas" UpgradeCode="ea2e59a0-90b9-47c7-a2e1-cd856c241336">
     <Package InstallerVersion="300" Compressed="yes" InstallScope="perMachine"/>
 
     <MajorUpgrade DowngradeErrorMessage="A newer version of ProPresenter Vmix Bridge is already installed." />
@@ -63,6 +63,12 @@
       </Component>
       <Component Id="log4net.xml" Guid="{d7d037aa-294e-4c44-8343-cd004809cf5c}">
         <File Id="log4net.xml" Source="$(var.TiagoViegas.ProPresenterVmixBridge.WindowsService.TargetDir)log4net.xml" KeyPath="yes"></File>
+      </Component>
+      <Component Id="Arkane.Zeroconf.dll" Guid="{e1f3b229-c479-4e9b-99cc-fa8aacd720e6}">
+        <File Id="Arkane.Zeroconf.dll" Source="$(var.TiagoViegas.ProPresenterVmixBridge.WindowsService.TargetDir)Arkane.Zeroconf.dll" KeyPath="yes"></File>
+      </Component>
+      <Component Id="System.Net.Http.dll" Guid="{88456500-8264-477d-8459-c7e485b6a146}">
+        <File Id="System.Net.Http.dll" Source="$(var.TiagoViegas.ProPresenterVmixBridge.WindowsService.TargetDir)System.Net.Http.dll" KeyPath="yes"></File>
       </Component>
       <Component Id="$(var.TiagoViegas.ProPresenterVmixBridge.ConfigurationApp.TargetFileName)" >
         <File Id="$(var.TiagoViegas.ProPresenterVmixBridge.ConfigurationApp.TargetFileName)" Source="$(var.TiagoViegas.ProPresenterVmixBridge.ConfigurationApp.TargetPath)" KeyPath="yes" />
@@ -133,6 +139,8 @@
       <ComponentRef Id="Newtonsoft.Json.xml"/>
       <ComponentRef Id="SimpleInjector.dll"/>
       <ComponentRef Id="SimpleInjector.xml"/>
+      <ComponentRef Id="Arkane.Zeroconf.dll"/>
+      <ComponentRef Id="System.Net.Http.dll"/>
       <ComponentRef Id="log4net.dll"/>
       <ComponentRef Id="log4net.xml"/>
       <ComponentRef Id="ApplicationShortcut"/>

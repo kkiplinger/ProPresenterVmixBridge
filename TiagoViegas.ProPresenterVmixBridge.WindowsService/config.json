@@ -1,26 +1,22 @@
 [
-  {
-    "key": "ProPresenterIp",
-    "value": "192.168.2.58"
-  },
-  {
-    "key": "ProPresenterPort",
-    "value": "1234"
-  },
-  {
-    "key": "ProPresenterPassword",
-    "value": "123"
-  },
-  {
-    "key": "VmixIp",
-    "value": "127.0.0.1"
-  },
-  {
-    "key": "VmixPort",
-    "value": "8088"
-  },
-  {
-    "key": "VmixInputNumber",
-    "value": "1"
-  }
+    {
+      "key": "ProPresenterName",
+      "value": "1234"
+    },
+    {
+      "key": "ProPresenterPassword",
+      "value": "123"
+    },
+    {
+      "key": "VmixIp",
+      "value": "127.0.0.1"
+    },
+    {
+      "key": "VmixPort",
+      "value": "8088"
+    },
+    {
+      "key": "VmixInputNumber",
+      "value": "1"
+    }
 ]

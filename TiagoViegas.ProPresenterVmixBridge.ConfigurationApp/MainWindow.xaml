@@ -5,20 +5,19 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TiagoViegas.ProPresenterVmixBridge.ConfigurationApp"
         mc:Ignorable="d"
-        Title="ProPresenter Vmix Bridge Configuration" Height="289" Width="370" MinWidth="370" MaxWidth="370" MaxHeight="300" MinHeight="300">
-    <Grid Margin="0,0,0,0.5">
-        <GroupBox Header="ProPresenter" HorizontalAlignment="Left" Margin="10,10,10,130" VerticalAlignment="Top" FontSize="16" FontWeight="Bold" Width="345" Height="105">
-            <Grid HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" MinWidth="340" MinHeight="75" Width="339">
-                <Label Content="Ip Address" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="12" FontWeight="Normal" MinWidth="66" MinHeight="26"/>
-                <TextBox x:Name="ProPresenterIp" HorizontalAlignment="Left" Margin="81,14,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" FontSize="12" FontWeight="Normal" MinWidth="120" MinHeight="23"/>
-                <Label Content="Port" HorizontalAlignment="Left" Margin="212,10,0,0" VerticalAlignment="Top" FontSize="12" FontWeight="Normal"/>
-                <TextBox x:Name="ProPresenterPort" HorizontalAlignment="Left" Margin="249,14,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" FontSize="12" FontWeight="Normal" MinWidth="65" MinHeight="23"/>
-                <Label Content="Password" HorizontalAlignment="Left" Margin="16,41,0,0" VerticalAlignment="Top" FontSize="12" FontWeight="Normal"/>
-                <TextBox x:Name="ProPresenterPassword" HorizontalAlignment="Left" Height="23" Margin="81,44,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" FontSize="12" FontWeight="Normal"/>
+        Title="ProPresenter Vmix Bridge Configuration" Height="289" Width="389" MinWidth="390" MaxWidth="390" MaxHeight="300" MinHeight="300"
+        d:DataContext="{d:DesignInstance local:MainWindow}">
+    <Grid Margin="0,0,-5,0.5">
+        <GroupBox Header="ProPresenter" HorizontalAlignment="Left" Margin="10,10,10,130" VerticalAlignment="Top" FontSize="16" FontWeight="Bold" Width="365" Height="105">
+            <Grid HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" MinWidth="360" MinHeight="75" Width="339">
+                <Label Content="Network Name" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="12" FontWeight="Normal" MinWidth="66" MinHeight="26"/>
+                <Label Content="Password" HorizontalAlignment="Left" Margin="40,41,0,0" VerticalAlignment="Top" FontSize="12" FontWeight="Normal"/>
+                <TextBox x:Name="ProPresenterPassword" HorizontalAlignment="Left" Height="23" Margin="105,44,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="245" FontSize="12" FontWeight="Normal"/>
+                <ComboBox x:Name="NetworkNames" HorizontalAlignment="Left" Margin="105,14,0,0" VerticalAlignment="Top" Width="245" Height="22" FontSize="12" FontWeight="Normal" ItemsSource="{Binding ProPresenterInstances}" IsSynchronizedWithCurrentItem="True" SelectedValuePath="Name"/>
             </Grid>
         </GroupBox>
-        <GroupBox Header="Vmix" HorizontalAlignment="Left" Margin="10,120,10,15" VerticalAlignment="Top" FontSize="16" FontWeight="Bold" MinWidth="345" MaxWidth="345" Height="105" MinHeight="105" Width="345">
-            <Grid HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" Width="333" MinWidth="330">
+        <GroupBox Header="Vmix" HorizontalAlignment="Left" Margin="10,120,0,0" VerticalAlignment="Top" FontSize="16" FontWeight="Bold" MinWidth="345" MaxWidth="345" Height="105" MinHeight="105" Width="365">
+            <Grid HorizontalAlignment="Left" Margin="0,0,-22,0" VerticalAlignment="Top" Width="355" MinWidth="330">
                 <Label Content="Ip Address" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="12" FontWeight="Normal"/>
                 <TextBox x:Name="VmixIp" HorizontalAlignment="Left" Height="22" Margin="81,14,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" FontSize="12" FontWeight="Normal"/>
                 <Label Content="Input" HorizontalAlignment="Left" Margin="38,41,0,0" VerticalAlignment="Top" FontSize="12" FontWeight="Normal"/>

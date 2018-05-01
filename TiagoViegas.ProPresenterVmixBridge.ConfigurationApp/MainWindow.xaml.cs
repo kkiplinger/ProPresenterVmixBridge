@@ -1,51 +1,68 @@
-﻿using SimpleInjector;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.ServiceProcess;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using TiagoViegas.ProPresenterVmixBridge.Business.Interfaces;
+using TiagoViegas.ProPresenterVmixBridge.ConfigurationApp.Annotations;
 using TiagoViegas.ProPresenterVmixBridge.ConfigurationApp.IoC;
 using TiagoViegas.ProPresenterVmixBridge.Data.Interfaces;
 using TiagoViegas.ProPresenterVmixBridge.Entities;
+using Container = SimpleInjector.Container;
 
 namespace TiagoViegas.ProPresenterVmixBridge.ConfigurationApp
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
         public readonly IConfigManager _configManager;
+        public readonly IProPresenterDataAgent _proPresenterDataAgent;
         public readonly Container _container;
+        public ProPresenterInstance CurrentInstance { get; set; }
+
+
+        private ObservableCollection<ProPresenterInstance> _proPresenterInstances = new ObservableCollection<ProPresenterInstance>();
+
+        public ObservableCollection<ProPresenterInstance> ProPresenterInstances
+        {
+            get => _proPresenterInstances;
+            set
+            {
+                _proPresenterInstances = value;
+                RaisePropertyChanged("ProPresenterInstances");
+            }
+        }
 
         public MainWindow()
         {
             InitializeComponent();
+            this.DataContext = this;
 
             _container = IoCManager.CreateContainer();
             _configManager = _container.GetInstance<IConfigManager>();
+            _proPresenterDataAgent = _container.GetInstance<IProPresenterDataAgent>();
+            _proPresenterDataAgent.OnProPresenterInstancesChanged += UpdateComboBox;
+            _proPresenterDataAgent.LookForProPresenter();
 
             FillTextBoxes();
+
+            ProPresenterInstances = new ObservableCollection<ProPresenterInstance>();
         }
 
         private async void ApplyButton_Click(object sender, RoutedEventArgs e)
         {
             ToggleEnable(false);
 
-            _configManager.EditConfig(ConfigKeys.ProPresenterIp, ProPresenterIp.Text);
-            _configManager.EditConfig(ConfigKeys.ProPresenterPort, ProPresenterPort.Text);
+            CurrentInstance = (ProPresenterInstance) NetworkNames.SelectionBoxItem;
+
+            _configManager.EditConfig(ConfigKeys.ProPresenterName,
+                CurrentInstance.Name);
             _configManager.EditConfig(ConfigKeys.ProPresenterPassword, ProPresenterPassword.Text);
             _configManager.EditConfig(ConfigKeys.VmixIp, VmixIp.Text);
             _configManager.EditConfig(ConfigKeys.VmixPort, VmixPort.Text);
@@ -65,26 +82,29 @@ namespace TiagoViegas.ProPresenterVmixBridge.ConfigurationApp
 
             Message.Content = "Checking configurations...";
 
-            var proPresenterDA = _container.GetInstance<IProPresenterDataAgent>();
             var vmixDA = _container.GetInstance<IVmixDataAgent>();
 
             var cancellationTokenSource = new CancellationTokenSource();
 
             cancellationTokenSource.CancelAfter(5000);
 
-            await proPresenterDA.Connect(cancellationTokenSource.Token);
+            await _proPresenterDataAgent.Connect(CurrentInstance.Name, cancellationTokenSource.Token);
 
             var vmixReachable = await vmixDA.CheckConfig();
 
             Message.Content = "";
 
-            if (!proPresenterDA.Connected || !vmixReachable)
+            if (!_proPresenterDataAgent.Connected || !vmixReachable)
             {
                 var message = new StringBuilder();
 
-                if (!proPresenterDA.Connected)
+                if (!_proPresenterDataAgent.Connected)
                 {
                     message.AppendLine("Could not connect to ProPresenter.");
+                }
+                else
+                {
+                    await _proPresenterDataAgent.Close();
                 }
 
                 if (!vmixReachable)
@@ -104,14 +124,27 @@ namespace TiagoViegas.ProPresenterVmixBridge.ConfigurationApp
 
         private void ToggleEnable(bool isEnabled)
         {
+            NetworkNames.IsEnabled = isEnabled;
             ApplyButton.IsEnabled = isEnabled;
-            ProPresenterIp.IsEnabled = isEnabled;
-            ProPresenterPort.IsEnabled = isEnabled;
             ProPresenterPassword.IsEnabled = isEnabled;
             VmixIp.IsEnabled = isEnabled;
             VmixPort.IsEnabled = isEnabled;
             VmixInput.IsEnabled = isEnabled;
         }
+
+        private void UpdateComboBox(object sender, ProPresenterInstancesChangedEventArgs args)
+        {
+            var networkName = _configManager.GetConfig(ConfigKeys.ProPresenterName);
+
+            ProPresenterInstances = new ObservableCollection<ProPresenterInstance>(args.Instances);
+
+            if (args.Instances.Any(x => x.Name == networkName))
+            {
+                NetworkNames.SelectedItem = ProPresenterInstances.First(x => x.Name == networkName);
+                RaisePropertyChanged("InstanceName");
+            }
+        }
+
 
         private void RestartService()
         {
@@ -150,8 +183,6 @@ namespace TiagoViegas.ProPresenterVmixBridge.ConfigurationApp
             {
                 _configManager.LoadConfig();
 
-                ProPresenterIp.Text = _configManager.GetConfig(ConfigKeys.ProPresenterIp);
-                ProPresenterPort.Text = _configManager.GetConfig(ConfigKeys.ProPresenterPort);
                 ProPresenterPassword.Text = _configManager.GetConfig(ConfigKeys.ProPresenterPassword);
 
                 VmixIp.Text = _configManager.GetConfig(ConfigKeys.VmixIp);
@@ -168,8 +199,6 @@ namespace TiagoViegas.ProPresenterVmixBridge.ConfigurationApp
                 _configManager.EditConfig(ConfigKeys.VmixInputNumber, "1");
 
 
-                ProPresenterIp.Text = _configManager.GetConfig(ConfigKeys.ProPresenterIp);
-                ProPresenterPort.Text = _configManager.GetConfig(ConfigKeys.ProPresenterPort);
                 ProPresenterPassword.Text = _configManager.GetConfig(ConfigKeys.ProPresenterPassword);
 
                 VmixIp.Text = _configManager.GetConfig(ConfigKeys.VmixIp);
@@ -182,6 +211,13 @@ namespace TiagoViegas.ProPresenterVmixBridge.ConfigurationApp
         private void ResetButton_Click(object sender, RoutedEventArgs e)
         {
             RestartService();
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void RaisePropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

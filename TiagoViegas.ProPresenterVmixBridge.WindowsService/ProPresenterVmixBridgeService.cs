@@ -1,11 +1,6 @@
-﻿using System;
-using System.Diagnostics;
-using System.ServiceProcess;
+﻿using System.ServiceProcess;
 using TiagoViegas.ProPresenterVmixBridge.Business.Interfaces;
-using TiagoViegas.ProPresenterVmixBridge.Data.Interfaces;
-using TiagoViegas.ProPresenterVmixBridge.Entities;
 using TiagoViegas.ProPresenterVmixBridge.Logging;
-using TiagoViegas.ProPresenterVmixBridge.WindowsService.IoC;
 
 namespace TiagoViegas.ProPresenterVmixBridge.WindowsService
 {
@@ -13,13 +8,12 @@ namespace TiagoViegas.ProPresenterVmixBridge.WindowsService
     {
         private readonly IBridgeBc _bridgeBc;
         private readonly ILogger _logger;
-    
+
 
         public ProPresenterVmixBridgeService(IBridgeBc bridgeBc, ILogger logger)
         {
             InitializeComponent();
 
-            
             _bridgeBc = bridgeBc;
             _logger = logger;
         }

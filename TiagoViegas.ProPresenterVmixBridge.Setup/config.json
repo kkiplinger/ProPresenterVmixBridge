@@ -1,11 +1,7 @@
 [
   {
-    "key": "ProPresenterIp",
-    "value": "192.168.2.58"
-  },
-  {
-    "key": "ProPresenterPort",
-    "value": "1234"
+    "key": "ProPresenterName",
+    "value": "PROPRESENTER"
   },
   {
     "key": "ProPresenterPassword",
